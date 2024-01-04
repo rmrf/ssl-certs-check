@@ -1,0 +1,56 @@
+version: '3'
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+
+services:
+  ssl-certs-check:
+    build:
+      context: .
+      args:
+        - ENV_GOPROXY=https://goproxy.cn,direct
+    image: local/ssl-certs-check
+    volumes:
+      - ./config.toml:/app/config.toml
+    command:
+      - '-config=/app/config.toml'
+    ports:
+      - 8080:8080
+
+  alertmanager:
+    container_name: alertmanager
+    hostname: alertmanager
+    image: prom/alertmanager
+    volumes:
+      - ./alertmanager.conf:/etc/alertmanager/alertmanager.conf
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.conf'
+    ports:
+      - 9093:9093
+
+  prometheus:
+    container_name: prometheus
+    hostname: prometheus
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    links:
+      - alertmanager:alertmanager
+    ports:
+      - 9090:9090
+
+  grafana:
+    container_name: grafana
+    hostname: grafana
+    image: grafana/grafana
+    volumes:
+      - ./grafana_datasources.yml:/etc/grafana/provisioning/datasources/all.yaml
+      - ./grafana_config.ini:/etc/grafana/config.ini
+      - grafana_data:/var/lib/grafana
+    ports:
+      - 3000:3000
