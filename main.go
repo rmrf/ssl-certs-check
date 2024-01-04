@@ -16,11 +16,12 @@ import (
 )
 
 var (
-	logger     *zap.Logger
-	labelNames = []string{"cert_hostname", "alert_email"}
-	notAfter   = NewGauge("cert_not_after", "cert not after X Unix Epoch seconds ", labelNames)
-	config     Config
-	hostQueue  = make(chan Host, 10)
+	logger       *zap.Logger
+	labelNames   = []string{"cert_hostname", "alert_email"}
+	notAfter     = NewGauge("cert_not_after", "cert not after X Unix Epoch seconds ", labelNames)
+	hostQueueLen = NewGauge("host_queue_length", "how many hosts in queue waiting to be check", []string{"address"})
+	config       Config
+	hostQueue    = make(chan Host, 10)
 )
 
 func init() {
@@ -66,17 +67,15 @@ func main() {
 		Addr: config.ListenAddress,
 	}
 
-	// 等待程序退出
+	// waiting to exit
 	go func(ctx context.Context) {
 		<-signalCh
 		cancel()
 		httpServer.Shutdown(ctx)
 	}(ctx)
 
-	// 收集所有hosts
 	go runCollectHosts(ctx, time.Duration(config.RefreshIntervalSecond)*time.Second)
 
-	// 检查过期时间
 	go processHosts(ctx)
 
 	logger.Info("http server started", zap.String("address", config.ListenAddress),
@@ -92,7 +91,7 @@ func parseConfig() Config {
 	var c Config
 	_, err := toml.DecodeFile(*configFile, &c)
 	if err != nil {
-		logger.Error("无法Decode toml 配置文件", zap.Error(err))
+		logger.Error("Could not Decode toml configuration file", zap.Error(err))
 		os.Exit(1)
 	}
 	return c
@@ -103,7 +102,7 @@ func collectHosts(ctx context.Context) {
 
 	for _, host := range c.Hosts {
 		hostQueue <- host
-		logger.Info("collectHosts", zap.String("address", host.Address),
+		logger.Debug("collectHosts", zap.String("address", host.Address),
 			zap.Strings("emails", host.AlertEmails))
 	}
 }
@@ -112,7 +111,7 @@ func runCollectHosts(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
-	// 程序启动就先执行一次，然后再 Ticker 周期性运行
+	// start first, then will run with Ticker
 	go collectHosts(ctx)
 
 	for {

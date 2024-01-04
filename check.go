@@ -56,9 +56,16 @@ func processHosts(ctx context.Context) {
 }
 
 func processQueue(ctx context.Context, hosts <-chan Host, results chan<- hostResult) {
+
+	hostQueueLen.WithLabelValues(config.ListenAddress).Set(float64(len(hostQueue)))
+	ticker := time.NewTicker(time.Minute * 5)
+	defer ticker.Stop()
+
 	for host := range hosts {
 		select {
 		case results <- checkHost(host):
+		case <-ticker.C:
+			hostQueueLen.WithLabelValues(config.ListenAddress).Set(float64(len(hostQueue)))
 		case <-ctx.Done():
 			logger.Info("proccessQueue ctx done")
 			return
@@ -94,7 +101,7 @@ func checkHost(host Host) (result hostResult) {
 			checkedCerts[string(cert.Signature)] = struct{}{}
 			cErrs := []error{}
 
-			// Check the expiration, 找到 chain 中最短的 expiration
+			// Check the expiration, find out the shortest expiration in the chain
 			if !cert.NotAfter.IsZero() && int(cert.NotAfter.Unix()) < notAfterUnix {
 				notAfterUnix = int(cert.NotAfter.Unix())
 			}

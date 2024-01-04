@@ -1,6 +1,6 @@
 listen-address = ":8080"
 
-# refresh to get latest domains 
+# refresh to get latest hosts 
 refresh-interval-second=3600
 
 # how many workers to check host ssl certs
@@ -9,7 +9,7 @@ concurrency=5
 
 [[hosts]]
     address = "www.supertechfans.com"
-	alert-emails = ["supertechfans@gmail.com", "rmrf@qq.com"]
+    alert-emails = ["supertechfans@gmail.com", "rmrf@qq.com"]
 [[hosts]]
     address = "baidu.com:443"
-	alert-emails = ["rmrf@qq.com"]
+    alert-emails = ["rmrf@qq.com"]
