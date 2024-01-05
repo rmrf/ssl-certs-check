@@ -11,6 +11,7 @@ services:
       args:
         - ENV_GOPROXY=https://goproxy.cn,direct
     image: local/ssl-certs-check
+    container_name: ssl-certs-check
     volumes:
       - ./config.toml:/app/config.toml
     command:
@@ -23,7 +24,7 @@ services:
     hostname: alertmanager
     image: prom/alertmanager
     volumes:
-      - ./alertmanager.conf:/etc/alertmanager/alertmanager.conf
+      - ./configurations/alertmanager.conf:/etc/alertmanager/alertmanager.conf
     command:
       - '--config.file=/etc/alertmanager/alertmanager.conf'
     ports:
@@ -34,8 +35,8 @@ services:
     hostname: prometheus
     image: prom/prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - ./configurations/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./configurations/alert_rules.yml:/etc/prometheus/alert_rules.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -49,8 +50,8 @@ services:
     hostname: grafana
     image: grafana/grafana
     volumes:
-      - ./grafana_datasources.yml:/etc/grafana/provisioning/datasources/all.yaml
-      - ./grafana_config.ini:/etc/grafana/config.ini
+      - ./configurations/grafana_datasources.yml:/etc/grafana/provisioning/datasources/all.yaml
+      - ./configurations/grafana_config.ini:/etc/grafana/config.ini
       - grafana_data:/var/lib/grafana
     ports:
       - 3000:3000

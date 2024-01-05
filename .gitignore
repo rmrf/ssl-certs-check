@@ -5,3 +5,5 @@ node_modules/
 .env.*
 yarn.lock
 config.toml
+alertmanager.conf
+ssl-certs-check

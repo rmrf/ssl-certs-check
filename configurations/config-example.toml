@@ -9,7 +9,7 @@ concurrency=5
 
 [[hosts]]
     address = "www.supertechfans.com"
-    alert-emails = ["supertechfans@gmail.com", "rmrf@qq.com"]
+    alert-emails = ["u1@example.com", "u2@example.com"]
 [[hosts]]
-    address = "baidu.com:443"
-    alert-emails = ["rmrf@qq.com"]
+    address = "githube.com:443"
+    alert-emails = ["abc@example.com"]

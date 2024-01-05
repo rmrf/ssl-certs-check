@@ -1,7 +1,7 @@
-default: run_main
+default: build
 
 run_main:
-	go run *.go -config config.toml
+	go run *.go -config configurations/config.toml
 
 build:
 	go build ./...
