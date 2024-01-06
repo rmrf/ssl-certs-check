@@ -6,20 +6,29 @@ Simple SSL Certs Expiration Check
 - programe will check these hosts ssl certs regulaly
 - then expose the ssl certs expiration date as prometheus metrics
 - all metrics with alert email as label
+- auto generate alertmanager config file base on configuration
 - docker-compose will start Prometheus/Alertmanager/Grafana for check and alert
 
-## Building
+## Building Binary
 
     make build
     ./ssl-certs-check -config configurations/config.toml
 
-### Docker
+### Docker build
 
 modify `docker-compose.yaml` ssl-certs-check env `ENV_GOPROXY`, then
 
     docker-compose build
 
 ## Usage
+
+    docker-compose up
+
+Then access:
+
+- [alertmanager](http://localhost:9093/)
+- [prometheus](http://localhost:9090/)
+- [grafana](http://localhost:3000/)
 
 ## Metrics
 

@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/BurntSushi/toml"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
@@ -26,17 +25,6 @@ var (
 
 func init() {
 	logger, _ = zap.NewProduction()
-}
-
-type Host struct {
-	Address     string   `toml:"address"`
-	AlertEmails []string `toml:"alert-emails"`
-}
-type Config struct {
-	ListenAddress         string `toml:"listen-address"`
-	RefreshIntervalSecond int    `toml:"refresh-interval-second"`
-	Concurrency           int    `toml:"concurrency"`
-	Hosts                 []Host `toml:"hosts"`
 }
 
 var configFile = flag.String("config", "config.toml", "配置文件")
@@ -85,42 +73,4 @@ func main() {
 	}
 
 	logger.Info("Bye")
-}
-
-func parseConfig() Config {
-	var c Config
-	_, err := toml.DecodeFile(*configFile, &c)
-	if err != nil {
-		logger.Error("Could not Decode toml configuration file", zap.Error(err))
-		os.Exit(1)
-	}
-	return c
-}
-
-func collectHosts(ctx context.Context) {
-	c := parseConfig()
-
-	for _, host := range c.Hosts {
-		hostQueue <- host
-		logger.Debug("collectHosts", zap.String("address", host.Address),
-			zap.Strings("emails", host.AlertEmails))
-	}
-}
-
-func runCollectHosts(ctx context.Context, interval time.Duration) {
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
-
-	// start first, then will run with Ticker
-	go collectHosts(ctx)
-
-	for {
-		select {
-		case <-ticker.C:
-			go collectHosts(ctx)
-		case <-ctx.Done():
-			logger.Info("collectHosts ctx done")
-			return
-		}
-	}
 }

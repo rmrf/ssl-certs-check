@@ -13,9 +13,9 @@ services:
     image: local/ssl-certs-check
     container_name: ssl-certs-check
     volumes:
-      - ./config.toml:/app/config.toml
+      - ./configurations:/app/configurations
     command:
-      - '-config=/app/config.toml'
+      - '-config=/app/configurations/config.toml'
     ports:
       - 8080:8080
 
@@ -29,6 +29,8 @@ services:
       - '--config.file=/etc/alertmanager/alertmanager.conf'
     ports:
       - 9093:9093
+    depends_on:
+      - ssl-certs-check
 
   prometheus:
     container_name: prometheus
@@ -40,10 +42,13 @@ services:
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-lifecycle'
     links:
       - alertmanager:alertmanager
     ports:
       - 9090:9090
+    depends_on:
+      - ssl-certs-check
 
   grafana:
     container_name: grafana
@@ -55,3 +60,5 @@ services:
       - grafana_data:/var/lib/grafana
     ports:
       - 3000:3000
+    depends_on:
+      - ssl-certs-check

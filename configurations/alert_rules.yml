@@ -2,9 +2,9 @@ groups:
   - name: 'ssl-certs-check-alert'
     rules:
       - alert: SSLCertsNearlyExpiration
-        expr: (exporter_cert_not_after{} - time())/3600/24 < 25
+        expr: round((exporter_cert_not_after{} - time())/3600/24) < 75
         annotations:
-          title: 'SSL Certs Will expire after 25 days'
+          title: 'SSL Certs Will expire after {{ $value }} days'
           description: ' Please kindly renew'
         labels:
           severity: 'critical'
