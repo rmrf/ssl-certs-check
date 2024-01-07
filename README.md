@@ -28,7 +28,7 @@ Then access:
 
 - [alertmanager](http://localhost:9093/)
 - [prometheus](http://localhost:9090/)
-- [grafana](http://localhost:3000/)
+- [grafana](http://localhost:3000/) (admin/admin)
 
 ## Metrics
 

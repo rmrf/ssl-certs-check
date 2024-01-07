@@ -32,20 +32,14 @@ func runCollectHosts(ctx context.Context, interval time.Duration) {
 func collectHosts(ctx context.Context) {
 	c := parseConfig()
 
+	_, err := os.Stat(c.AlertManager.ConfigPath)
+	if os.IsNotExist(err) {
+		createAlertManagerYaml(c)
+	}
+
 	if !reflect.DeepEqual(c, config) {
 		logger.Info("config changed", zap.String("path", c.AlertManager.ConfigPath))
-
-		// Generate AlertManagerYaml file
-		a := genAlertManagerYaml(c)
-		data, err := yaml.Marshal(&a)
-		if err != nil {
-			logger.Fatal("Yaml Marshal Error", zap.Error(err))
-		}
-		err = os.WriteFile(c.AlertManager.ConfigPath, data, 0644)
-		if err != nil {
-			logger.Fatal("WriteFile Error", zap.Error(err), zap.String("path", c.AlertManager.ConfigPath))
-		}
-		logger.Info("WriteFile Done", zap.String("path", c.AlertManager.ConfigPath))
+		createAlertManagerYaml(c)
 
 		resp, err := http.Post(c.AlertManager.ReloadURL, "application/json", nil)
 		if err != nil {
@@ -63,4 +57,18 @@ func collectHosts(ctx context.Context) {
 		logger.Debug("collectHosts", zap.String("address", host.Address),
 			zap.Strings("emails", host.AlertEmails))
 	}
+}
+
+func createAlertManagerYaml(c Config) {
+	// Generate AlertManagerYaml file
+	a := genAlertManagerYaml(c)
+	data, err := yaml.Marshal(&a)
+	if err != nil {
+		logger.Fatal("Yaml Marshal Error", zap.Error(err))
+	}
+	err = os.WriteFile(c.AlertManager.ConfigPath, data, 0644)
+	if err != nil {
+		logger.Fatal("WriteFile Error", zap.Error(err), zap.String("path", c.AlertManager.ConfigPath))
+	}
+	logger.Info("WriteFile Done", zap.String("path", c.AlertManager.ConfigPath))
 }
