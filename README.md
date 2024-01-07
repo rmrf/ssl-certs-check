@@ -31,6 +31,9 @@ modify `docker-compose.yaml` ssl-certs-check env `ENV_GOPROXY`, then
 
 ### ssl-certs-check main config file: [configurations/config-example.toml](configurations/config-example.toml)
 
+- **smtp-xxxx and [[hosts]]** related configuration need to be modified
+
+```toml
     listen-address = ":8080"
 
     # refresh to get latest hosts 
@@ -60,19 +63,24 @@ modify `docker-compose.yaml` ssl-certs-check env `ENV_GOPROXY`, then
     [[hosts]]
         address = "githube.com:443"
         alert-emails = ["abc@example.com"]
+```
 
-#### alert rule [configurations/alert_rules.yml], adjust expiration days (25 here) as you wish
+### alert rule [configurations/alert_rules.yml](configurations/alert_rules.yml)
 
+- You can adjust the alert expiration days (25 here)
+
+```yaml
     groups:
-    - name: 'ssl-certs-check-alert'
+  - name: 'ssl-certs-check-alert'
         rules:
-        - alert: SSLCertsNearlyExpiration
+    - alert: SSLCertsNearlyExpiration
             expr: round((exporter_cert_not_after{} - time())/3600/24) < 25
             annotations:
             title: 'SSL Certs Will expire after {{ $value }} days'
             description: ' Please kindly renew'
             labels:
             severity: 'critical'
+```
 
 ## Usage
 
