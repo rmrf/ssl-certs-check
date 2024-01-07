@@ -3,6 +3,9 @@ listen-address = ":8080"
 # refresh to get latest hosts 
 refresh-interval-second=3600
 
+# how many workers to check ssl certs
+concurrency=5
+
 [alertmanager]
 # after hosts change, ssl-certs-check will call this url to reload alertmanager
 reload-url="http://alertmanager:9093/-/reload"
