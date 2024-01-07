@@ -3,15 +3,25 @@ listen-address = ":8080"
 # refresh to get latest hosts 
 refresh-interval-second=3600
 
-# how many workers to check host ssl certs
-concurrency=5
 [alertmanager]
+# after hosts change, ssl-certs-check will call this url to reload alertmanager
 reload-url="http://alertmanager:9093/-/reload"
+
+# ssl-certs-check will generate alertmanager.conf to this path
 config-path="configurations/alertmanager.conf"
+
+# altermanager will use these smtp server send alert emails
 smtp-smarthost=''
 smtp-from=''
 smtp-username=''
 smtp-password=''
+
+
+
+
+# hosts example: 
+# - if port not provided, default is 443
+# - alert-emails define who care about this address' cert expiration
 
 [[hosts]]
     address = "www.supertechfans.com"

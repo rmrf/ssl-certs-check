@@ -2,16 +2,23 @@
 
 Simple SSL Certs Expiration Check
 
-- config the hosts and alert email inside toml configuration file
-- programe will check these hosts ssl certs regulaly
-- then expose the ssl certs expiration date as prometheus metrics
-- all metrics with alert email as label
-- auto generate alertmanager config file base on configuration
-- docker-compose will start Prometheus/Alertmanager/Grafana for check and alert
+Features:
+
+- config the **hosts** and **alert emails** inside toml configuration file
+- docker-compose start Prometheus/Alertmanager/Grafana for check and alert
+
+How it works:
+
+- hosts ssl certs will be checked regulaly by ssl-certs-check,
+- expose expiration date as prometheus metrics
+- base on configuration, all metrics have alert email as labels
+- generated alertmanager config file base on configuration for alert
 
 ## Building Binary
 
     make build
+    cp configurations/config-example.toml configurations/config.toml
+    # modify configurations/config.toml, then
     ./ssl-certs-check -config configurations/config.toml
 
 ### Docker build
@@ -22,7 +29,7 @@ modify `docker-compose.yaml` ssl-certs-check env `ENV_GOPROXY`, then
 
 ## Usage
 
-    docker-compose up
+    docker-compose up -d
 
 Then access:
 
