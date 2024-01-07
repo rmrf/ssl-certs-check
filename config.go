@@ -14,7 +14,6 @@ type Host struct {
 type Config struct {
 	ListenAddress         string       `toml:"listen-address"`
 	RefreshIntervalSecond int          `toml:"refresh-interval-second"`
-	Concurrency           int          `toml:"concurrency"`
 	AlertManager          AlertManager `toml:"alertmanager"`
 	Hosts                 []Host       `toml:"hosts"`
 }
