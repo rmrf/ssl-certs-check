@@ -56,8 +56,10 @@ services:
     image: grafana/grafana
     volumes:
       - ./configurations/grafana_datasources.yml:/etc/grafana/provisioning/datasources/all.yaml
+      - ./configurations/grafana_dashboards.yml:/etc/grafana/provisioning/dashboards/all.yaml
       - ./configurations/grafana_config.ini:/etc/grafana/config.ini
       - grafana_data:/var/lib/grafana
+      - ./configurations/grafana_dashboards:/var/lib/grafana/dashboards
     ports:
       - 3000:3000
     depends_on:
